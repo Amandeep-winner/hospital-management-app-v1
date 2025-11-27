@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Register Form{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/style.css">
+<style>
+    #form-body{
+        margin-top: 50px;
+    }
+    </style>
+{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+<div id="main">
+        <div id="canvas">
+            <a href="{{url_for('home')}}">
+                <img src="/static/home_icon.png" alt="Home" style="width: 40px; height: 40px;">
+            </a>
+            <div id="form-body">
+                <h2>Patient Register</h2>
+                <br>
+                <form action="/patient_register", method="post">
+                    <div>
+                        <label for="email">Email</label>
+                        <input name="email" type="email" id="email">
+                    </div>
+                    <div>
+                        <label for="username">Username</label>
+                        <input name="username" type="text" id="username">
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input name="password" type="password" id="password">
+                    </div>
+                    <div>
+                        <input type="submit" value="Register"><br>
+                        Alredy Register! <a href="{{url_for('patient_login')}}">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

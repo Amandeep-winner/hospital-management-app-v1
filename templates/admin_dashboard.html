@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block search_box %}
+    
+{% endblock %}
+
+{% block content %}
+
+<div class="section">
+    <div class="section-header">
+        <h3>Registered Doctors</h3>
+        <button class="btn btn-create" onclick="">
+            Add New Doctor
+        </button>
+    </div>
+
+    <div class="list-container">
+        <div class="list-item">
+            <span class="name">Dr. Abcde</span>
+            <div class="actions">
+                <button class="btn btn-edit">Edit</button>
+                <button class="btn btn-delete">Delete</button>
+                <button class="btn btn-blacklist">Blacklist</button>
+            </div>
+        </div>
+
+        <div class="list-item">
+            <span class="name">Dr. Pqrst</span>
+            <div class="actions">
+                <button class="btn btn-edit">Edit</button>
+                <button class="btn btn-delete">Delete</button>
+                <button class="btn btn-blacklist">Blacklist</button>
+            </div>
+        </div>
+
+        {% for doctor in doctors %}
+        <div class="list-item">
+            <span class="name">{{ doctor.fullname }}</span>
+            <div class="actions">
+                <button class="btn btn-edit" onclick="">Edit</button>
+                <button class="btn btn-delete" onclick="">Delete</button>
+                <button class="btn btn-blacklist">Blacklist</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-header">
+        <h3>Registered Patients</h3>
+    </div>
+
+    <div class="list-container">
+        <div class="list-item">
+            <span class="name">Mr. Abcde</span>
+            <div class="actions">
+                <button class="btn btn-edit">Edit</button>
+                <button class="btn btn-delete">Delete</button>
+                <button class="btn btn-blacklist">Blacklist</button>
+            </div>
+        </div>
+        <div class="list-item">
+            <span class="name">Miss. Pqrst</span>
+            <div class="actions">
+                <button class="btn btn-edit">Edit</button>
+                <button class="btn btn-delete">Delete</button>
+                <button class="btn btn-blacklist">Blacklist</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h3 style="margin-bottom: 15px;">Upcoming Appointments</h3>
+
+    <table class="appoint-table">
+        <thead>
+            <tr>
+                <th>Sr No.</th>
+                <th>Patient Name</th>
+                <th>Doctor Name</th>
+                <th>Department</th>
+                <th>Date & Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1001</td>
+                <td>Mr. Abcde</td>
+                <td>Dr. Pqrst</td>
+                <td>Cardiology</td>
+                <td>28 Nov 2025, 10:30 AM</td>
+                <td><button class="btn btn-view">View History</button></td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

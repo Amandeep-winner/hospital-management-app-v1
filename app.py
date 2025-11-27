@@ -5,6 +5,7 @@ app = None
 def create_app():
     app = Flask(__name__)
     app.debug = True
+    app.secret_key = 'hospital-db'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospital.db'
     db.init_app(app)
     app.app_context().push()

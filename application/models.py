@@ -13,7 +13,7 @@ class Doctor(db.Model):
     password = db.Column(db.String(), nullable=False)
     name = db.Column(db.String(), nullable=False)
     Dep_id = db.Column(db.Integer, db.ForeignKey("department.id"), nullable=False)
-    gender = db.Column(db.String(), nullable=False)
+    gender = db.Column(db.Enum('Male', 'Female'), nullable=False)
     appointments = db.relationship('Appointment', backref='doctor')
 
 class Patient(db.Model):
@@ -22,8 +22,8 @@ class Patient(db.Model):
     username = db.Column(db.String(), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     name = db.Column(db.String(), nullable=False)
-    age = db.Column(db.Integer, nullable=False)
-    gender = db.Column(db.String(), nullable=False)
+    age = db.Column(db.Integer)
+    gender = db.Column(db.Enum('Male', 'Female'))
     appointments = db.relationship('Appointment', backref='patient')
 
 class Appointment(db.Model):

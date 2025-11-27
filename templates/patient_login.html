@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Login Form{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/style.css">
+    <style>
+        #form-body{
+            height: 320px;
+        }
+    </style>
+{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+<div id="main">
+        <div id="canvas">
+            <a href="{{url_for('home')}}">
+                <img src="/static/home_icon.png" alt="Home" style="width: 40px; height: 40px;">
+            </a>
+            <div id="form-body">
+                <h2>Patient Login</h2>
+                <br>
+                <form action="/patient_login", method="post">
+                    <div>
+                        <label for="username">Username</label>
+                        <input name="username" type="text" id="username">
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input name="password" type="password" id="password">
+                    </div>
+                    <div>
+                        <input type="submit" value="Login"><br>
+                        Are you a new User? <a href="{{url_for('patient_register')}}">Register</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

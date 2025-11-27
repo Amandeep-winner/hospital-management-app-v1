@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Login Form{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/style.css">
+    <style>
+        #form-body{
+            height: 300px;
+        }
+    </style>
+{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+<div id="main">
+        <div id="canvas">
+            <a href="{{url_for('home')}}">
+                <img src="/static/home_icon.png" alt="Home" style="width: 40px; height: 40px;">
+            </a>
+            <div id="form-body">
+                <h2>Doctor Login</h2>
+                <br>
+                <form action="/doctor_login" method="post">
+                    <div>
+                        <label for="username">Username</label>
+                        <input name="username" type="text" id="username">
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input name="password" type="password" id="password">
+                    </div>
+                    <div>
+                        <input type="submit" value="Login"><br>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

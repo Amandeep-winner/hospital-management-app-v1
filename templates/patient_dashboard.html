@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard{% endblock %}
+
+{% block extra_nav_option %}
+<a href="{{ url_for('history') }}" style="color: rgb(34, 2, 65); text-decoration: none;">History |</a>
+<a href="{{ url_for('patient_profile') }}" style="color: rgb(34, 2, 65); text-decoration: none;">edit Profile |</a>
+{% endblock %}
+
+{% block content %}
+<!-- Departments Section -->
+<div class="section">
+    <h3 style="color: rgb(34, 2, 65); margin-bottom: 15px;">Departments</h3>
+
+    <div class="list-container">
+        <!-- Cardiology -->
+        <div class="list-item">
+            <span class="name" style="color: #777; font-weight: normal;">Cardiology</span>
+            <div class="actions">
+                <button class="btn" 
+                        style="background-color: #e3f2fd; border: 2px solid #2196f3; color: #1976d2; font-weight: bold;"
+                        onmouseover="this.style.backgroundColor='#2196f3'; this.style.color='white'"
+                        onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#1976d2'"
+                        onclick="">
+                    View Details
+                </button>
+            </div>
+        </div>
+
+        <!-- Oncology -->
+        <div class="list-item">
+            <span class="name" style="color: #777; font-weight: normal;">Oncology</span>
+            <div class="actions">
+                <button class="btn" 
+                        style="background-color: #e3f2fd; border: 2px solid #2196f3; color: #1976d2; font-weight: bold;"
+                        onmouseover="this.style.backgroundColor='#2196f3'; this.style.color='white'"
+                        onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#1976d2'"
+                        onclick="">
+                    View Details
+                </button>
+            </div>
+        </div>
+
+        <!-- General -->
+        <div class="list-item">
+            <span class="name" style="color: #777; font-weight: normal;">General</span>
+            <div class="actions">
+                <button class="btn" 
+                        style="background-color: #e3f2fd; border: 2px solid #2196f3; color: #1976d2; font-weight: bold;"
+                        onmouseover="this.style.backgroundColor='#2196f3'; this.style.color='white'"
+                        onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#1976d2'"
+                        onclick="">
+                    View Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Appointments Section -->
+<div class="section">
+    <h3 style="color: rgb(34, 2, 65); margin-bottom: 15px;">Upcoming Appointments</h3>
+
+    <table class="appoint-table">
+        <thead>
+            <tr>
+                <th>Sr No.</th>
+                <th>Doctor Name</th>
+                <th>Department</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Example Appointment -->
+            <tr>
+                <td>1001</td>
+                <td>Dr. Abcde</td>
+                <td>General</td>
+                <td>24/09/2025</td>
+                <td>08:00 AM - 12:00 PM</td>
+                <td style="text-align: right;">
+                    <button class="btn" 
+                            style="background-color: white; border: 2px solid #f44336; color: #d32f2f; font-weight: bold;"
+                            onmouseover="this.style.backgroundColor='#ffebee'"
+                            onmouseout="this.style.backgroundColor='white'"
+                            onclick="if(confirm('Cancel this appointment?')) ">
+                        Cancel
+                    </button>
+                </td>
+            </tr>
+
+            <!-- More appointments will go here -->
+            {% for appt in appointments %}
+            <tr>
+                <td>{{ loop.index + 1000 }}</td>
+                <td>{{ appt.doctor_name }}</td>
+                <td>{{ appt.department }}</td>
+                <td>{{ appt.date }}</td>
+                <td>{{ appt.time }}</td>
+                <td style="text-align: right;">
+                    <button class="btn" 
+                            style="background-color: white; border: 2px solid #f44336; color: #d32f2f;"
+                            onmouseover="this.style.backgroundColor='#ffebee'"
+                            onmouseout="this.style.backgroundColor='white'">
+                        Cancel
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

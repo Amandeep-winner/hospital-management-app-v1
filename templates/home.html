@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Management System - Home{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+
+<div style="
+    text-align: center; background-color: white; padding: 60px 30px;
+    border-radius: 12px; margin: 40px auto; max-width: 650px;
+    border: 4px solid rgb(34, 2, 65);
+    box-shadow: 0 10px 30;">
+    <h1 style="
+        font-size: 2.8em; color: rgb(34, 2, 65);
+        margin-bottom: 15px; font-weight: bold;">
+        Hospital Management System
+    </h1>
+    <p style="font-size: 1.3em; color: #444; margin-bottom: 50px;">
+        Welcome! Please select your role to continue.
+    </p>
+    <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+        <!-- Admin Login -->
+        <a href="{{ url_for('admin_login') }}"
+           style="
+               background-color: rgb(11, 2, 65);
+               color: white;
+               padding: 18px 50px;
+               font-size: 1.4em;
+               min-width: 340px;
+               text-decoration: none;
+               border-radius: 8px;
+               font-weight: bold;
+               display: inline-block;
+               box-shadow: 0 6px 15px rgba(11, 2, 65, 0.3);
+               transition: all 0.3s;
+           "
+           onmouseover="this.style.backgroundColor='rgb(25, 40, 90)'; this.style.transform='translateY(-4px)'"
+           onmouseout="this.style.backgroundColor='rgb(11, 2, 65)'; this.style.transform='translateY(0)'">
+           Admin Login
+        </a>
+        <!-- Doctor Login -->
+        <a href="{{ url_for('doc_login') }}"
+           style="
+               background-color: #4859f0;
+               color: white;
+               padding: 18px 50px;
+               font-size: 1.4em;
+               min-width: 340px;
+               text-decoration: none;
+               border-radius: 8px;
+               font-weight: bold;
+               display: inline-block;
+               box-shadow: 0 6px 15px rgba(72, 89, 240, 0.3);
+               transition: all 0.3s;
+           "
+           onmouseover="this.style.backgroundColor='#3344dd'; this.style.transform='translateY(-4px)'"
+           onmouseout="this.style.backgroundColor='#4859f0'; this.style.transform='translateY(0)'">
+           Doctor Login
+        </a>
+
+        <!-- Patient Login & Register (side by side on larger screens) -->
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+            <a href="{{ url_for('patient_login') }}"
+               style="
+                   background-color: #17a2b8;
+                   color: white;
+                   padding: 16px 40px;
+                   font-size: 1.3em;
+                   text-decoration: none;
+                   border-radius: 8px;
+                   font-weight: bold;
+                   box-shadow: 0 6px 12px rgba(23, 162, 184, 0.3);
+                   transition: all 0.3s;
+               "
+               onmouseover="this.style.backgroundColor='#117a8b'; this.style.transform='translateY(-3px)'"
+               onmouseout="this.style.backgroundColor='#17a2b8'; this.style.transform='translateY(0)'">
+               Patient Login
+            </a>
+            <a href="{{ url_for('patient_register') }}"
+               style="
+                   background-color: white;
+                   color: #28a745;
+                   border: 3px solid #28a745;
+                   padding: 16px 40px;
+                   font-size: 1.3em;
+                   text-decoration: none;
+                   border-radius: 8px;
+                   font-weight: bold;
+                   transition: all 0.3s;
+               "
+               onmouseover="this.style.backgroundColor='#28a745'; this.style.color='white'"
+               onmouseout="this.style.backgroundColor='white'; this.style.color='#28a745'">
+               Register as Patient
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
