@@ -3,48 +3,57 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block search_box %}
-    
+<form action="{{ url_for('admin_dashboard') }}" method="GET" style="display: flex; gap: 10px;">
+    <input type="text" 
+           name="q" 
+           value="{{ request.args.get('q', '') }}"
+           placeholder="Search by Patient or Doctor name..." 
+           style="width: 300px; padding: 10px; border-radius: 4px; border: 1px solid #4859f0;">
+    <button type="submit" class="btn btn-search">Search</button>
+    {% if request.args.get('q') %}
+        <a href="{{ url_for('admin_dashboard') }}" 
+           style="color: rgb(34, 2, 65); text-decoration: none; font-weight: bold;">
+            Clear
+        </a>
+    {% endif %}
+</form>
 {% endblock %}
 
 {% block content %}
 
+
+
 <div class="section">
     <div class="section-header">
         <h3>Registered Doctors</h3>
-        <button class="btn btn-create" onclick="">
+        <a href="/doctor_register" class="btn btn-create">
             Add New Doctor
-        </button>
+        </a>
     </div>
 
     <div class="list-container">
-        <div class="list-item">
-            <span class="name">Dr. Abcde</span>
-            <div class="actions">
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
-                <button class="btn btn-blacklist">Blacklist</button>
+        {% if doctors|length == 0 %}
+            <p style="color: #666; padding: 20px; text-align: center;">
+                No doctors registered yet.
+            </p>
+        {% else %}
+            {% for doctor in doctors %}
+            <div class="list-item">
+                <span class="name">Dr. {{ doctor.name }}</span>
+                <div class="actions">
+                    <a href="{{ url_for('edit_doctor', doctor_id=doctor.id) }}" class="btn btn-edit">Edit</a>
+                    <a href="{{ url_for('delete_doctor', doctor_id=doctor.id) }}" class="btn btn-delete"
+                       onclick="return confirm('Are you sure you want to delete Dr. {{ doctor.name }}? This cannot be undone.')">
+                        Delete
+                    </a>
+                    <a href="{{ url_for('blacklist_doctor', doctor_id=doctor.id) }}" class="btn btn-blacklist" 
+                       onclick="return confirm('Are you sure you want to blacklist Dr. {{ doctor.name }}? This cannot be undone.')">
+                        Blacklist
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <div class="list-item">
-            <span class="name">Dr. Pqrst</span>
-            <div class="actions">
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
-                <button class="btn btn-blacklist">Blacklist</button>
-            </div>
-        </div>
-
-        {% for doctor in doctors %}
-        <div class="list-item">
-            <span class="name">{{ doctor.fullname }}</span>
-            <div class="actions">
-                <button class="btn btn-edit" onclick="">Edit</button>
-                <button class="btn btn-delete" onclick="">Delete</button>
-                <button class="btn btn-blacklist">Blacklist</button>
-            </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
 
@@ -54,51 +63,68 @@
     </div>
 
     <div class="list-container">
-        <div class="list-item">
-            <span class="name">Mr. Abcde</span>
-            <div class="actions">
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
-                <button class="btn btn-blacklist">Blacklist</button>
+        {% if patients|length == 0 %}
+            <p style="color: #666; padding: 20px; text-align: center;">
+                No patients registered yet.
+            </p>
+        {% else %}
+            {% for patient in patients %}
+            <div class="list-item">
+                <span class="name">{{ patient.name }}</span>
+                <div class="actions">
+                    <a href="{{ url_for('edit_patient', patient_id=patient.id) }}" class="btn btn-edit">Edit</a>
+                    <a href="{{ url_for('delete_patient', patient_id=patient.id) }}" 
+                       class="btn btn-delete"
+                       onclick="return confirm('Delete {{ patient.name }} permanently?')">
+                        Delete
+                    </a>
+                    <a href="{{ url_for('blacklist_patient', patient_id=patient.id) }}" 
+                       class="btn btn-blacklist"
+                       onclick="return confirm('Blacklist {{ patient.name }}?')">
+                        Blacklist
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="list-item">
-            <span class="name">Miss. Pqrst</span>
-            <div class="actions">
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
-                <button class="btn btn-blacklist">Blacklist</button>
-            </div>
-        </div>
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
 
 <div class="section">
     <h3 style="margin-bottom: 15px;">Upcoming Appointments</h3>
-
-    <table class="appoint-table">
-        <thead>
-            <tr>
-                <th>Sr No.</th>
-                <th>Patient Name</th>
-                <th>Doctor Name</th>
-                <th>Department</th>
-                <th>Date & Time</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1001</td>
-                <td>Mr. Abcde</td>
-                <td>Dr. Pqrst</td>
-                <td>Cardiology</td>
-                <td>28 Nov 2025, 10:30 AM</td>
-                <td><button class="btn btn-view">View History</button></td>
-            </tr>
-
-        </tbody>
-    </table>
+    
+    {% if appointments|length == 0 %}
+        <p style="color: #666; padding: 20px; text-align: center; background: #f8f9ff; border-radius: 8px;">
+            No upcoming appointments.
+        </p>
+    {% else %}
+        <table class="appoint-table">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Patient Name</th>
+                    <th>Doctor Name</th>
+                    <th>Department</th>
+                    <th>Date & Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                {% if appointment.status=='Booked' %}
+                <tr>
+                    <td>{{appointment.id}}</td>
+                    <td>Mr. {{appointment.patient.name}}</td>
+                    <td>Dr. {{appointment.doctor.name}}</td>
+                    <td>{{appointment.doctor.department.dep_name}}</td>
+                    <td>{{appointment.date}}, {{appointment.time}}</td>
+                    <td><a href="{{ url_for('view_appointment', appt_id=appointment.id) }}" class="btn btn-view">View History</a></td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Patient History{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <!-- Header + Back Button -->
+    <div class="nav-bar" style="margin-bottom: 30px; border-bottom: none; padding-bottom: 0;">
+        <h2 style="margin: 0; color: rgb(34, 2, 65);">Patient History</h2>
+        <a href="javascript:history.back()" 
+           class="btn"
+           style="
+               background: white; 
+               color: rgb(34, 2, 65); 
+               border: 2px solid rgb(34, 2, 65); 
+               padding: 10px 24px; 
+               font-weight: bold; 
+               border-radius: 6px;
+               text-decoration: none;
+           "
+           onmouseover="this.style.background='rgb(34, 2, 65)'; this.style.color='white';"
+           onmouseout="this.style.background='white'; this.style.color='rgb(34, 2, 65)';">
+            Back
+        </a>
+    </div>
+
+    <!-- Patient & Doctor Info Card -->
+    <div style="
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        border: 3px solid rgb(34, 2, 65);
+        margin-bottom: 30px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    ">
+        <h3 style="color: rgb(34, 2, 65); margin: 0 0 12px 0;">
+            Patient: <strong>{{ patient.name }}</strong>
+        </h3>
+        <p style="margin: 6px 0; font-size: 1.1em;">
+            Doctor: <strong>Dr. {{ doctor.name }}</strong>
+        </p>
+        <p style="margin: 6px 0; font-size: 1.1em;">
+            Department: <strong>{{ doctor.department.dep_name }}</strong>
+        </p>
+    </div>
+
+    <!-- Visit History Table -->
+    <div class="section">
+        <table class="appoint-table">
+            <thead>
+                <tr>
+                    <th>Visit No.</th>
+                    <th>Visit Type</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Diagnosis</th>
+                    <th>Prescription</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if treatments|length == 0 %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #777; font-style: italic;">
+                        No treatment records found for this patient with this doctor.
+                    </td>
+                </tr>
+                {% else %}
+                    {% for treatment in treatments %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>In-person</td>
+                        <td>{{ treatment.appointment.date.strftime('%d %B %Y') }}</td>
+                        <td>{{ treatment.appointment.time.strftime('%I:%M %p') }}</td>
+                        <td>
+                            {% if 'abnormal' in treatment.diagnosis.lower() %}
+                                <span style="color: #d32f2f; font-weight: bold;">Abnormal Heartbeats</span>
+                            {% elif 'normal' in treatment.diagnosis.lower() %}
+                                <span style="color: #2e7d32; font-weight: bold;">Normal Heartbeats</span>
+                            {% else %}
+                                {{ treatment.diagnosis }}
+                            {% endif %}
+                        </td>
+                        <td>{{ treatment.prescription }}</td>
+                        <td style="color: #555; font-size: 0.95em;">
+                            {{ treatment.notes or '—' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
