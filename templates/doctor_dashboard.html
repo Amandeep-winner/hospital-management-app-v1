@@ -2,127 +2,104 @@
 
 {% block title %}Doctor Dashboard{% endblock %}
 
+{% block search_box %}{% endblock %}
+
 {% block content %}
 
-<!-- Upcoming Appointments Section -->
+<!-- Upcoming Appointments -->
 <div class="section">
     <h3 style="margin-bottom: 15px; color: rgb(34, 2, 65);">Upcoming Appointments</h3>
 
-    <table class="appoint-table">
-        <thead>
-            <tr>
-                <th>Sr No.</th>
-                <th>Patient Name</th>
-                <th>Patient History</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Example Row 1 -->
-            <tr>
-                <td>1001</td>
-                <td>Mr. Abcde</td>
-                <td>
-                    <button class="btn" 
-                            style="background-color: #e3f2fd; border: 2px solid #2196f3; color: #1976d2;"
-                            onmouseover="this.style.backgroundColor='#2196f3'; this.style.color='white'"
-                            onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#1976d2'">
-                        Update
-                    </button>
-                </td>
-                <td>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn" 
-                                style="background-color: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32;"
-                                onmouseover="this.style.backgroundColor='#4caf50'; this.style.color='white'"
-                                onmouseout="this.style.backgroundColor='#e8f5e9'; this.style.color='#2e7d32'">
-                            Mark as Complete
-                        </button>
-                        <button class="btn" 
-                                style="background-color: white; border: 2px solid #f44336; color: #d32f2f;"
-                                onmouseover="this.style.backgroundColor='#ffebee'"
-                                onmouseout="this.style.backgroundColor='white'">
-                            Cancel
-                        </button>
-                    </div>
-                </td>
-            </tr>
+    {% if upcoming_appointments|length == 0 %}
+        <p style="text-align: center; color: #666; padding: 30px; background: #f9f9f9; border-radius: 8px;">
+            No upcoming appointments today.
+        </p>
+    {% else %}
+        <table class="appoint-table">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Patient Name</th>
+                    <th>History</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in upcoming_appointments %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ appt.patient.name }}</strong></td>
+                    <td>
+                        <a href="{{ url_for('update_patient_history', appt_id=appt.id) }}"
+                           class="btn"
+                           style="background:#e3f2fd; border:2px solid #2196f3; color:#1976d2; padding:8px 16px;">
+                            Update History
+                        </a>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:8px;">
+                            <form method="POST" action="{{ url_for('complete_appointment', appt_id=appt.id) }}" style="display:inline;">
+                                <button type="submit" class="btn"
+                                        style="background:#e8f5e9; border:2px solid #4caf50; color:#2e7d32;"
+                                        onmouseover="this.style.background='#4caf50'; this.style.color='white'"
+                                        onmouseout="this.style.background='#e8f5e9'; this.style.color='#2e7d32'">
+                                    Mark Complete
+                                </button>
+                            </form>
 
-            <!-- Example Row 2 -->
-            <tr>
-                <td>1002</td>
-                <td>Ms. Pqrst</td>
-                <td>
-                    <button class="btn" 
-                            style="background-color: #e3f2fd; border: 2px solid #2196f3; color: #1976d2;"
-                            onmouseover="this.style.backgroundColor='#2196f3'; this.style.color='white'"
-                            onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#1976d2'">
-                        Update
-                    </button>
-                </td>
-                <td>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn" 
-                                style="background-color: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32;"
-                                onmouseover="this.style.backgroundColor='#4caf50'; this.style.color='white'"
-                                onmouseout="this.style.backgroundColor='#e8f5e9'; this.style.color='#2e7d32'">
-                            Mark as Complete
-                        </button>
-                        <button class="btn" 
-                                style="background-color: white; border: 2px solid #f44336; color: #d32f2f;"
-                                onmouseover="this.style.backgroundColor='#ffebee'"
-                                onmouseout="this.style.backgroundColor='white'">
-                            Cancel
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                            <form method="POST" action="{{ url_for('cancel_appointment', appt_id=appt.id) }}" style="display:inline;">
+                                <button type="submit" class="btn"
+                                        style="background:white; border:2px solid #f44336; color:#d32f2f;"
+                                        onmouseover="this.style.background='#ffebee'"
+                                        onmouseout="this.style.background='white'"
+                                        onclick="confirm('Cancel this appointment?')">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </div>
 
-<!-- Assigned Patients Section -->
+<!-- Assigned Patients (All patients this doctor has ever treated) -->
 <div class="section">
     <div class="section-header">
-        <h3>Assigned Patients</h3>
+        <h3>My Patients</h3>
     </div>
 
     <div class="list-container">
-        <div class="list-item">
-            <span class="name">Mr. Abcde</span>
-            <div class="actions">
-                <button class="btn" 
-                        style="background-color: white; border: 2px solid #4859f0; color: #4859f0;"
-                        onmouseover="this.style.backgroundColor='#e3f2fd'"
-                        onmouseout="this.style.backgroundColor='white'">
-                    View
-                </button>
+        {% if all_patients|length == 0 %}
+            <p style="text-align:center; color:#777; padding:20px;">No patients assigned yet.</p>
+        {% else %}
+            {% for patient in all_patients %}
+            <div class="list-item">
+                <span class="name">{{ patient.name }}</span>
+                <div class="actions">
+                    <a href="{{ url_for('view_patient_history', patient_id=patient.id) }}"
+                       class="btn"
+                       style="background:white; border:2px solid #4859f0; color:#4859f0;"
+                       onmouseover="this.style.background='#e3f2fd'"
+                       onmouseout="this.style.background='white'">
+                        View History
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <div class="list-item">
-            <span class="name">Miss. Pqrst</span>
-            <div class="actions">
-                <button class="btn" 
-                        style="background-color: white; border: 2px solid #4859f0; color: #4859f0;"
-                        onmouseover="this.style.backgroundColor='#e3f2fd'"
-                        onmouseout="this.style.backgroundColor='white'">
-                    View
-                </button>
-            </div>
-        </div>
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
 
-<!-- Provide Availability Button -->
+<!-- Provide Availability -->
 <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
-    <button class="btn btn-create" 
-            style="background-color: #e8f5e9; border: 3px solid #2e7d32; color: #2e7d32; font-weight: bold; padding: 12px 30px; font-size: 1.1em;"
-            onmouseover="this.style.backgroundColor='#2e7d32'; this.style.color='white'"
-            onmouseout="this.style.backgroundColor='#e8f5e9'; this.style.color='#2e7d32'"
-            onclick="">
+    <a href="{{ url_for('doctor_availability') }}"
+       class="btn btn-create"
+       style="background:#e8f5e9; border:3px solid #2e7d32; color:#2e7d32; padding:14px 32px; font-size:1.1em; font-weight:bold;">
         Provide Availability
-    </button>
+    </a>
 </div>
 
 {% endblock %}

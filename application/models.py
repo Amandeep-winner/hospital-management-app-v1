@@ -1,3 +1,4 @@
+from datetime import datetime
 from .database import db
 
 class Admin(db.Model):
@@ -37,13 +38,38 @@ class Appointment(db.Model):
 
 class Treatment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    appoint_id = db.Column(db.Integer, db.ForeignKey("appointment.id"), nullable=False)
-    diagnosis = db.Column(db.String(), nullable=False)
-    prescription = db.Column(db.String(), nullable=False)
-    notes = db.Column(db.String())
+    appoint_id = db.Column(db.Integer, db.ForeignKey('appointment.id'), nullable=False)
+    diagnosis = db.Column(db.Text, nullable=False)
+    prescription = db.Column(db.Text, nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    medicines = db.relationship('Medicine', backref='treatment', cascade='all, delete-orphan')
+
+class Medicine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    treatment_id = db.Column(db.Integer, db.ForeignKey('treatment.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    dosage = db.Column(db.String(50))
+    duration = db.Column(db.String(50))
 
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dep_name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String(), nullable=False)
     doctors_registered = db.relationship('Doctor', backref='department')
+
+# Add this new model — perfect fit with your current code
+class DoctorAvailability(db.Model):
+    __tablename__ = 'doctor_availability'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    morning_slot = db.Column(db.Boolean, default=False)   # 08:00 - 12:00 am
+    evening_slot = db.Column(db.Boolean, default=False)   # 04:00 - 09:00 pm
+
+    # One doctor can't have duplicate dates
+    __table_args__ = (db.UniqueConstraint('doctor_id', 'date', name='unique_doctor_date'),)
+
+    # Relationship
+    doctor = db.relationship('Doctor', backref='availability')

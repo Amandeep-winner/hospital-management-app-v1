@@ -70,7 +70,7 @@ def doc_login():
             print("user not exist")
             flash("User does not exist or invalid credentials", "error")
             return redirect('doc_login')
-        
+        session['user_id'] = user.id #Created later
         session['username'] = user.username
         session['user_type'] = 'doctor'
         return redirect('doctor_dashboard')
@@ -95,10 +95,6 @@ def admin_login():
 @app.route("/patient_dashboard", methods=["GET", "POST"])
 def patient_dashboard():
     return render_template('patient_dashboard.html')
-
-@app.route("/doctor_dashboard", methods=["GET", "POST"])
-def doctor_dashboard():
-    return render_template('doctor_dashboard.html')
 
 @app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
@@ -242,3 +238,183 @@ def view_appointment(appt_id):
         doctor=appointment.doctor,
         treatments=treatments
     )
+
+@app.route('/view_patient_history/<int:patient_id>')
+def view_patient_history(patient_id):
+    if session.get('user_type') != 'doctor':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    current_doctor = Doctor.query.get(session['user_id'])
+    patient = Patient.query.get_or_404(patient_id)
+
+    # treatments from completed appointments for this doctor-patient pair
+    treatments = Treatment.query.join(Appointment, Treatment.appoint_id == Appointment.id).filter(
+        Appointment.p_id == patient.id,
+        Appointment.d_id == current_doctor.id,
+        Appointment.status == 'Completed'
+    ).order_by(Appointment.date).all()
+
+    return render_template('view_appointment.html', patient=patient, doctor=current_doctor, treatments=treatments)
+
+# docotor
+@app.route('/doctor_dashboard')
+def doctor_dashboard():
+    if session.get('user_type') != 'doctor':
+        flash('Access denied. Doctors only.', 'error')
+        return redirect(url_for('home'))
+
+    current_doctor = Doctor.query.get(session['user_id'])
+
+    # Upcoming appointments (today or future, status = Booked)
+    from datetime import date, datetime
+    today = date.today()
+
+    upcoming_appointments = Appointment.query.filter(
+        Appointment.d_id == current_doctor.id,
+        Appointment.date >= today,
+        Appointment.status == 'Booked'
+    ).order_by(Appointment.date, Appointment.time).all()
+
+    # All patients this doctor has ever seen (from completed appointments)
+    all_patients = db.session.query(Patient).join(Appointment).filter(
+        Appointment.d_id == current_doctor.id,
+        Appointment.status == 'Completed'
+    ).distinct().all()
+
+    return render_template(
+        'doctor_dashboard.html',
+        upcoming_appointments=upcoming_appointments,
+        all_patients=all_patients
+    )
+
+@app.route('/complete_appointment/<int:appt_id>', methods=['POST'])
+def complete_appointment(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    if appt.doctor.id != session['user_id']:
+        flash('Unauthorized', 'error')
+        return redirect(url_for('doctor_dashboard'))
+    
+    appt.status = 'Completed'
+    db.session.commit()
+    flash('Appointment marked as complete!', 'success')
+    return redirect(url_for('doctor_dashboard'))
+
+
+@app.route('/cancel_appointment/<int:appt_id>', methods=['POST'])
+def cancel_appointment(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    if appt.doctor.id != session['user_id']:
+        flash('Unauthorized', 'error')
+        return redirect(url_for('doctor_dashboard'))
+    
+    appt.status = 'Cancelled'
+    db.session.commit()
+    flash('Appointment cancelled.', 'warning')
+    return redirect(url_for('doctor_dashboard'))
+
+@app.route('/update_patient_history/<int:appt_id>', methods=['GET', 'POST'])
+def update_patient_history(appt_id):
+    if session.get('user_type') != 'doctor':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    appointment = Appointment.query.get_or_404(appt_id)
+    if appointment.d_id != session['user_id']:
+        flash('Unauthorized', 'error')
+        return redirect(url_for('doctor_dashboard'))
+
+    if request.method == 'POST':
+        # Create Treatment
+        treatment = Treatment(
+            appoint_id=appointment.id,
+            diagnosis=request.form['diagnosis'],
+            prescription=request.form['prescription'],
+            notes=request.form.get('tests_done') + " | Visit: " + request.form.get('visit_type', 'In-person')
+        )
+        db.session.add(treatment)
+
+        # Add Medicines
+        names = request.form.getlist('medicine_name')
+        dosages = request.form.getlist('medicine_dosage')
+        for name, dosage in zip(names, dosages):
+            if name.strip():
+                med = Medicine(
+                    treatment=treatment,
+                    name=name.strip(),
+                    dosage=dosage.strip()
+                )
+                db.session.add(med)
+
+        # Mark appointment as completed
+        appointment.status = 'Completed'
+        db.session.commit()
+
+        flash('Patient history updated successfully!', 'success')
+        return redirect(url_for('doctor_dashboard'))
+
+    return render_template(
+        'update_patient_history.html',
+        appointment=appointment,
+        patient=appointment.patient,
+        doctor=appointment.doctor
+    )
+
+
+from datetime import date, timedelta
+
+@app.route('/doctor_availability', methods=['GET', 'POST'])
+def doctor_availability():
+    if session.get('user_type') != 'doctor':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    doctor = Doctor.query.get(session['user_id'])
+    today = date.today()
+    next_7_days = []
+
+    # Prepare next 7 days with current availability
+    for i in range(7):
+        current_date = today + timedelta(days=i)
+        avail = DoctorAvailability.query.filter_by(
+            doctor_id=doctor.id, 
+            date=current_date
+        ).first()
+
+        next_7_days.append({
+            'date': current_date,
+            'morning': avail.morning_slot if avail else False,
+            'evening': avail.evening_slot if avail else False
+        })
+
+    if request.method == 'POST':
+        # Delete old availability for next 7 days
+        DoctorAvailability.query.filter(
+            DoctorAvailability.doctor_id == doctor.id,
+            DoctorAvailability.date >= today,
+            DoctorAvailability.date < today + timedelta(days=7)
+        ).delete()
+
+        # Save new availability
+        for i in range(7):
+            day_date = today + timedelta(days=i)
+            morning_key = f"available_{day_date.strftime('%Y%m%d')}_morning"
+            evening_key = f"available_{day_date.strftime('%Y%m%d')}_evening"
+
+            morning = morning_key in request.form
+            evening = evening_key in request.form
+
+            if morning or evening:
+                avail = DoctorAvailability(
+                    doctor_id=doctor.id,
+                    date=day_date,
+                    morning_slot=morning,
+                    evening_slot=evening
+                )
+                db.session.add(avail)
+
+        db.session.commit()
+        flash('Your availability has been updated successfully!', 'success')
+        return redirect(url_for('doctor_dashboard'))
+
+    return render_template('doctor_availability.html', next_7_days=next_7_days)

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor's Availability{% endblock %}
+
+<!-- Use your login/register style -->
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .dashboard-container {
+            height: 1265px;
+        }
+        div#main {
+            height: 1054px;
+        }
+        div#canvas {
+            height: 1050px;
+        }
+        #form-body{
+            width: 90%;
+            height: 1000px;
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+
+<div id="main">
+    <div id="canvas">
+        <div id="form-body">
+
+            <h2 style="text-align:center; color:rgb(34, 2, 65); margin-bottom:30px;">
+                Doctor's Availability
+            </h2>
+
+            <p style="text-align:center; color:#555; margin-bottom:30px; font-size:1.1em;">
+                Set your availability for the next 7 days.<br>
+                <strong>Morning:</strong> 08:00 – 12:00 am  <strong>Evening:</strong> 04:00 – 09:00 pm
+            </p>
+
+            <form method="POST" action="{{ url_for('doctor_availability') }}">
+
+                <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                    <thead>
+                        <tr style="background:rgb(34, 2, 65); color:white;">
+                            <th style="padding:16px; text-align:left; border-top-left-radius:8px;">
+                                Date
+                            </th>
+                            <th style="padding:16px; text-align:center;">
+                                Morning Slot<br><small>08:00 – 12:00 am</small>
+                            </th>
+                            <th style="padding:16px; text-align:center; border-top-right-radius:8px;">
+                                Evening Slot<br><small>04:00 – 09:00 pm</small>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in next_7_days %}
+                        {% set date_key = day.date.strftime('%Y%m%d') %}
+                        <tr style="background:white; border-bottom:1px solid #ddd;">
+                            <!-- Date Column -->
+                            <td style="padding:18px; font-weight:bold; background:#f8f9ff; width:180px;">
+                                {{ day.date.strftime('%d/%m/%Y') }}
+                                <br>
+                                <small style="color:#666; font-weight:normal;">
+                                    {{ day.date.strftime('%A') }}
+                                </small>
+                            </td>
+
+                            <!-- Morning Slot -->
+                            <td style="text-align:center; padding:15px;">
+                                <label style="
+                                    display:inline-block;
+                                    background:#e8f5e9;
+                                    padding:14px 30px;
+                                    border-radius:8px;
+                                    cursor:pointer;
+                                    min-width:160px;
+                                    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+                                    transition:all 0.2s;
+                                "
+                                onmouseover="this.style.background='#c8e6c9'"
+                                onmouseout="this.style.background='#e8f5e9'">
+                                    <input type="checkbox"
+                                           name="available_{{ date_key }}_morning"
+                                           {% if day.morning %}checked{% endif %}
+                                           style="transform:scale(1.3); margin-right:10px;">
+                                    <span style="color:#2e7d32; font-weight:bold; font-size:1.1em;">
+                                        08:00 – 12:00 am
+                                    </span>
+                                </label>
+                            </td>
+
+                            <!-- Evening Slot -->
+                            <td style="text-align:center; padding:15px;">
+                                <label style="
+                                    display:inline-block;
+                                    background:#ffebee;
+                                    padding:14px 30px;
+                                    border-radius:8px;
+                                    cursor:pointer;
+                                    min-width:160px;
+                                    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+                                    transition:all 0.2s;
+                                "
+                                onmouseover="this.style.background='#ffcbb2'"
+                                onmouseout="this.style.background='#ffebee'">
+                                    <input type="checkbox"
+                                           name="available_{{ date_key }}_evening"
+                                           {% if day.evening %}checked{% endif %}
+                                           style="transform:scale(1.3); margin-right:10px;">
+                                    <span style="color:#d32f2f; font-weight:bold; font-size:1.1em;">
+                                        04:00 – 09:00 pm
+                                    </span>
+                                </label>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Save Button -->
+                <div style="text-align:center; margin-top:40px;">
+                    <input type="submit" value="Save Availability"
+                           style="
+                               background:#28a745;
+                               color:white;
+                               font-weight:bold;
+                               font-size:1.3em;
+                               padding:16px 50px;
+                               border:none;
+                               border-radius:8px;
+                               cursor:pointer;
+                               box-shadow:0 4px 15px rgba(40,167,69,0.4);
+                           "
+                           onmouseover="this.style.background='#218838'"
+                           onmouseout="this.style.background='#28a745'">
+                </div>
+
+                <!-- Back Link -->
+                <div style="text-align:center; margin-top:25px;">
+                    <a href="{{ url_for('doctor_dashboard') }}"
+                       style="color:rgb(34, 2, 65); text-decoration:none; font-size:1.1em;">
+                        ← Back to Dashboard
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
