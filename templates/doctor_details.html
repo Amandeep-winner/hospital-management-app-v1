@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dr. {{ doctor.name }} - Profile{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <!-- Doctor Profile Header -->
+    <div style="background: white; padding: 40px; border-radius: 16px; border: 4px solid rgb(34, 2, 65); margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap;">
+            <!-- Doctor Photo -->
+            <div style="flex-shrink: 0;">
+                <div style="
+                    width: 160px;
+                    height: 160px;
+                    background: #ddd;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 60px;
+                    color: #999;
+                    border: 5px solid #eee;
+                ">
+                    👨‍⚕️
+                </div>
+            </div>
+
+            <!-- Doctor Info -->
+            <div style="flex: 1; min-width: 300px;">
+                <h1 style="margin: 0 0 8px 0; color: rgb(34, 2, 65); font-size: 2.5em;">
+                    Dr. {{ doctor.name }}
+                </h1>
+                <p style="margin: 5px 0; font-size: 1.3em; color: #1976d2; font-weight: bold;">
+                    MBBS, DM - Medical {{ doctor.department.dep_name }}
+                </p>
+                <p style="margin: 5px 0; font-size: 1.4em; color: #333;">
+                    Medical {{ doctor.department.dep_name }}
+                </p>
+                <p style="margin: 15px 0; font-size: 1.3em; color: #2e7d32; font-weight: bold;">
+                    20 Years Experience Overall<br>
+                    <span style="font-size: 1.1em; color: #555; font-weight: normal;">
+                        (11 years as specialist)
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Bio -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee;">
+            <p style="font-size: 1.2em; line-height: 1.8; color: #444;">
+                Dr. {{ doctor.name }} is a Medical {{ doctor.department.dep_name }} in Indira and has an experience of 
+                <strong>20 years</strong> in this field.
+            </p>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="text-align: center; margin-top: 40px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('check_availability', doctor_id=doctor.id) }}"
+           class="btn"
+           style="
+               background: white;
+               color: #1976d2;
+               border: 3px solid #2196f3;
+               padding: 16px 40px;
+               font-size: 1.3em;
+               font-weight: bold;
+               border-radius: 50px;
+               text-decoration: none;
+               box-shadow: 0 6px 20px rgba(33,150,243,0.2);
+           "
+           onmouseover="this.style.background='#e3f2fd'"
+           onmouseout="this.style.background='white'">
+            Check Availability
+        </a>
+
+        <a href="{{ url_for('view_department', dep_id=doctor.Dep_id) }}"
+           onclick="history.back(); return false;"
+           class="btn"
+           style="
+               background: white;
+               color: rgb(34, 2, 65);
+               border: 3px solid rgb(34, 2, 65);
+               padding: 16px 40px;
+               font-size: 1.3em;
+               font-weight: bold;
+               border-radius: 50px;
+               text-decoration: none;
+               box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+           "
+           onmouseover="this.style.background='rgb(34, 2, 65)'; this.style.color='white';"
+           onmouseout="this.style.background='white'; this.style.color='rgb(34, 2, 65)';">
+            Go Back
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

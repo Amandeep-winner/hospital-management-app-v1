@@ -23,7 +23,7 @@
 
             <h2>Edit Patient Profile</h2>
 
-            <form method="POST" action="{{ url_for('edit_patient', patient_id=patient.id) }}">
+            <form method="POST" action="{% if session.get('user_type') == 'admin' %}{{ url_for('edit_patient', patient_id=patient.id) }}{% else %}{{ url_for('patient_profile', patient_id=patient.id) }}{% endif %}">
 
                 <!-- Full Name -->
                 <div>
@@ -86,7 +86,7 @@
                            style="background-color: #28a745; margin-bottom: 10px;">
                 </div>
                 <div>
-                    <a href="{{ url_for('admin_dashboard') }}">Cancel & Go Back</a>
+                    <a href="javascript:history.back()">Cancel & Go Back</a>
                 </div>
             </form>
         </div>

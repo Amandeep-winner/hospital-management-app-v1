@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ department.dep_name }} Department{% endblock %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <!-- Department Header -->
+    <div class="nav-bar" style="margin-bottom: 30px; border-bottom: 2px solid rgb(34, 2, 65); padding-bottom: 15px;">
+        <h2 style="color: rgb(34, 2, 65); margin: 0;">
+            Department of {{ department.dep_name }}
+        </h2>
+    </div>
+
+    <!-- Overview Section -->
+    <div class="section" style="background: white; padding: 25px; border-radius: 12px; border: 2px solid rgb(34, 2, 65); margin-bottom: 35px;">
+        <h3 style="color: rgb(34, 2, 65); margin-top: 0;">Overview</h3>
+        <p style="font-size: 1.1em; line-height: 1.7; color: #444;">
+            {{ department.description }}
+        </p>
+    </div>
+
+    <!-- Doctors' List -->
+    <div class="section">
+        <h3 style="color: rgb(34, 2, 65); margin-bottom: 20px;">Doctors' List</h3>
+
+        <div class="list-container">
+            {% if doctors|length == 0 %}
+                <p style="text-align:center; color:#777; padding:30px; background:#f9f9f9; border-radius:8px;">
+                    No doctors available in this department yet.
+                </p>
+            {% else %}
+                {% for doctor in doctors %}
+                <div class="list-item" style="align-items: center; padding: 18px;">
+                    <span class="name" style="font-size: 1.3em; font-weight: bold; color: #333;">
+                        Dr. {{ doctor.name }}
+                    </span>
+                    <div class="actions" style="gap: 12px;">
+                        <a href="{{ url_for('check_availability', doctor_id=doctor.id) }}"
+                           class="btn"
+                           style="
+                               background: white;
+                               color: #1976d2;
+                               border: 2px solid #2196f3;
+                               padding: 10px 20px;
+                               font-weight: bold;
+                               border-radius: 6px;
+                               text-decoration: none;
+                           "
+                           onmouseover="this.style.background='#e3f2fd'"
+                           onmouseout="this.style.background='white'">
+                            Check Availability
+                        </a>
+
+                        <a href="{{ url_for('doctor_details', doctor_id=doctor.id) }}"
+                           class="btn"
+                           style="
+                               background: #2196f3;
+                               color: white;
+                               padding: 10px 20px;
+                               font-weight: bold;
+                               border-radius: 6px;
+                               text-decoration: none;
+                           "
+                           onmouseover="this.style.background='#1976d2'"
+                           onmouseout="this.style.background='#2196f3'">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back to Departments -->
+    <div style="margin-top: 40px; text-align: center;">
+        <a href="{{ url_for('patient_dashboard') }}"
+           onclick="history.back(); return false;"
+           class="btn"
+           style="
+               background: white;
+               color: rgb(34, 2, 65);
+               border: 2px solid rgb(34, 2, 65);
+               padding: 12px 30px;
+               font-weight: bold;
+               font-size: 1.1em;
+               border-radius: 8px;
+               text-decoration: none;
+           ">
+            Back to Departments
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

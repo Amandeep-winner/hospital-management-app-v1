@@ -12,13 +12,124 @@ def logout():
     flash("Looged out Successfully", "success")
     return redirect(url_for("home"))
 
-@app.route("/history", methods=["GET", "POST"])
-def history():
-    return "patient history"
+@app.route("/history/<int:patient_id>", methods=["GET", "POST"])
+def history(patient_id):
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('logout'))
 
-@app.route("/patient_profile", methods=["GET", "POST"])
-def patient_profile():
-    return "patient profile edit here"
+    # Check that patient can only view their own history
+    if patient_id != session.get('user_id'):
+        flash('Access denied.', 'error')
+        return redirect(url_for('patient_dashboard'))
+
+    current_patient = Patient.query.get_or_404(patient_id)
+
+    #get doctors with which patient has the appointment
+    doctors = db.session.query(Doctor).join(Appointment).filter(
+        Appointment.p_id == current_patient.id,
+        Appointment.status == 'Completed'
+    ).distinct().all()
+
+    # Get completed treatments for this patient
+    treatments = Treatment.query.join(Appointment, Treatment.appoint_id == Appointment.id).filter(
+        Appointment.p_id == current_patient.id,
+        Appointment.status == 'Completed'
+    ).order_by(Appointment.date).all()
+
+    return render_template('patient_profile.html', patient=current_patient, doctors=doctors, treatments=treatments)
+
+@app.route('/patient_profile/<int:patient_id>', methods=["GET", "POST"])
+def patient_profile(patient_id):
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    patient = Patient.query.get_or_404(patient_id)
+    if request.method == "POST":
+        patient.name = request.form['name']
+        patient.email = request.form['email']
+        patient.username = request.form['username']
+        patient.age = int(request.form['age'])
+        patient.gender = request.form['gender']
+        db.session.commit()
+        flash(f'{patient.name} updated successfully!', 'success')
+        return redirect(url_for('patient_dashboard'))
+    return render_template('edit_patient.html', patient=patient)
+
+@app.route('/cancel_appointment_patient/<int:appt_id>', methods=['POST'])
+def cancel_appointment_patient(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    if appt.patient.id != session['user_id']:
+        flash('Unauthorized', 'error')
+        return redirect(url_for('patient_dashboard'))
+    
+    appt.status = 'Cancelled'
+    db.session.commit()
+    flash('Appointment cancelled.', 'warning')
+    return redirect(url_for('patient_dashboard'))
+
+@app.route('/view_department/<int:dep_id>', methods=["GET", "POST"])
+def view_department(dep_id):
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    department = Department.query.get_or_404(dep_id)
+    doctors = Doctor.query.filter_by(Dep_id=dep_id).all()
+
+    return render_template(
+        'view_departments.html',
+        department=department,
+        doctors=doctors
+    )
+
+
+@app.route('/check_availability/<int:doctor_id>')
+def check_availability(doctor_id):
+    from datetime import date, timedelta
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    doctor = Doctor.query.get_or_404(doctor_id)
+    today = date.today()
+    availability = []
+
+    for i in range(7):
+        day_date = today + timedelta(days=i)
+        
+        # Get doctor's availability
+        avail = DoctorAvailability.query.filter_by(doctor_id=doctor.id, date=day_date).first()
+        
+        # Check if slots are already booked
+        morning_booked = Appointment.query.filter_by(
+            d_id=doctor.id,
+            date=day_date,
+            time='10:00:00',  # You can store time as Time object
+            status='Booked'
+        ).first() is not None
+
+        evening_booked = Appointment.query.filter_by(
+            d_id=doctor.id,
+            date=day_date,
+            time='18:00:00',
+            status='Booked'
+        ).first() is not None
+
+        availability.append({
+            'date': day_date,
+            'morning_available': avail.morning_slot if avail else False,
+            'evening_available': avail.evening_slot if avail else False,
+            'morning_booked': morning_booked,
+            'evening_booked': evening_booked
+        })
+
+    return render_template('check_availability.html', doctor=doctor, availability=availability)
+
+@app.route('/doctor_details/<int:doctor_id>')
+def doctor_details(doctor_id):
+    doctor = Doctor.query.get_or_404(doctor_id)
+    return render_template('doctor_details.html', doctor=doctor)
 
 @app.route("/base", methods=["GET", "POST"])
 def base():
@@ -55,13 +166,14 @@ def patient_login():
             flash("User does not exist or invalid credentials", "error")
             return redirect('patient_login')
         
+        session['user_id'] = user.id
         session['username'] = user.username
         session['user_type'] = 'patient'
         return redirect('patient_dashboard')
     return render_template('patient_login.html')
 
 @app.route("/doctor_login", methods=["GET", "POST"])
-def doc_login():
+def doctor_login():
     if request.method == "POST":
         username = request.form.get('username')
         password = request.form.get('password')
@@ -69,11 +181,11 @@ def doc_login():
         if not user:
             print("user not exist")
             flash("User does not exist or invalid credentials", "error")
-            return redirect('doc_login')
-        session['user_id'] = user.id #Created later
+            return redirect(url_for('doctor_login'))
+        session['user_id'] = user.id
         session['username'] = user.username
         session['user_type'] = 'doctor'
-        return redirect('doctor_dashboard')
+        return redirect(url_for('doctor_dashboard'))
     return render_template('doc_login.html')
 
 @app.route("/admin_login", methods=["GET", "POST"])
@@ -87,6 +199,7 @@ def admin_login():
             flash("User does not exist or invalid credentials", "error")
             return redirect('admin_login')
         
+        session['user_id'] = user.id
         session['username'] = user.username
         session['user_type'] = 'admin'
         return redirect('admin_dashboard')
@@ -94,7 +207,32 @@ def admin_login():
 
 @app.route("/patient_dashboard", methods=["GET", "POST"])
 def patient_dashboard():
-    return render_template('patient_dashboard.html')
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    
+    current_patient = Patient.query.get(session.get('user_id'))
+    if not current_patient:
+        flash('Session expired.', 'error')
+        return redirect(url_for('patient_login'))
+    
+    departments = Department.query.all()
+
+    from datetime import date, datetime
+    today = date.today()
+    upcoming_appointments = Appointment.query.filter(
+        Appointment.p_id == current_patient.id,
+        Appointment.date >= today,
+        Appointment.status == 'Booked'
+    ).order_by(Appointment.date, Appointment.time).all()
+
+    return render_template(
+        'patient_dashboard.html',
+        current_patient=current_patient,
+        departments=departments,
+        upcoming_appointments=upcoming_appointments
+    )
+
 
 @app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
@@ -418,3 +556,39 @@ def doctor_availability():
         return redirect(url_for('doctor_dashboard'))
 
     return render_template('doctor_availability.html', next_7_days=next_7_days)
+
+@app.route('/book_appointment/<int:doctor_id>/<date>/<slot>', methods=['POST'])
+def book_appointment(doctor_id, date, slot):
+    if session.get('user_type') != 'patient':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+
+    from datetime import datetime, time
+    patient = Patient.query.get(session['user_id'])
+    doctor = Doctor.query.get_or_404(doctor_id)
+
+    # Parse date string
+    appt_date = datetime.strptime(date, '%Y-%m-%d').date()
+
+    # Set time based on slot
+    if slot == 'morning':
+        appt_time = time(10, 0, 0)
+    elif slot == 'evening':
+        appt_time = time(18, 0, 0)
+    else:
+        flash('Invalid slot.', 'error')
+        return redirect(url_for('check_availability', doctor_id=doctor_id))
+
+    # Create appointment
+    appointment = Appointment(
+        p_id=patient.id,
+        d_id=doctor.id,
+        date=appt_date,
+        time=appt_time,
+        status='Booked'
+    )
+    db.session.add(appointment)
+    db.session.commit()
+
+    flash(f'Appointment booked successfully with Dr. {doctor.name}!', 'success')
+    return redirect(url_for('patient_dashboard'))
