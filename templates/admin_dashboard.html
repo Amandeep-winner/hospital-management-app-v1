@@ -31,7 +31,7 @@
         <p style="margin: 0; font-size: 32px; font-weight: bold;">{{ patients|length }}</p>
     </div>
 </div>
-
+ 
 
 <div class="section">
     <div class="section-header">
@@ -56,10 +56,20 @@
                        onclick="return confirm('Are you sure you want to delete Dr. {{ doctor.name }}? This cannot be undone.')">
                         Delete
                     </a>
-                    <a href="{{ url_for('blacklist_doctor', doctor_id=doctor.id) }}" class="btn btn-blacklist" 
-                       onclick="return confirm('Are you sure you want to blacklist Dr. {{ doctor.name }}? This cannot be undone.')">
-                        Blacklist
-                    </a>
+                    {% if doctor.is_blacklisted %}
+                        <a href="{{ url_for('unblacklist_doctor', doctor_id=doctor.id) }}" 
+                           class="btn" 
+                           style="background:#4caf50; color:white; border:2px solid #4caf50;"
+                           onclick="return confirm('Remove Dr. {{ doctor.name }} from blacklist?')">
+                            Unblacklist
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('blacklist_doctor', doctor_id=doctor.id) }}" 
+                           class="btn btn-blacklist"
+                           onclick="return confirm('Blacklist Dr. {{ doctor.name }}? They will not be able to login.')">
+                            Blacklist
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -88,11 +98,20 @@
                        onclick="return confirm('Delete {{ patient.name }} permanently?')">
                         Delete
                     </a>
-                    <a href="{{ url_for('blacklist_patient', patient_id=patient.id) }}" 
-                       class="btn btn-blacklist"
-                       onclick="return confirm('Blacklist {{ patient.name }}?')">
-                        Blacklist
-                    </a>
+                    {% if patient.is_blacklisted %}
+                        <a href="{{ url_for('unblacklist_patient', patient_id=patient.id) }}" 
+                           class="btn" 
+                           style="background:#4caf50; color:white; border:2px solid #4caf50;"
+                           onclick="return confirm('Remove {{ patient.name }} from blacklist?')">
+                            Unblacklist
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('blacklist_patient', patient_id=patient.id) }}" 
+                           class="btn btn-blacklist"
+                           onclick="return confirm('Blacklist {{ patient.name }}? They will not be able to login.')">
+                            Blacklist
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

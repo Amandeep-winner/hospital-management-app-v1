@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, flash, session, url
 from flask import current_app as app
 from .models import *
 
+#blacklist_doctor
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     return render_template("home.html")
@@ -165,6 +167,10 @@ def patient_login():
             print("user not exist")
             flash("User does not exist or invalid credentials", "error")
             return redirect('patient_login')
+        # In doctor_login and patient_login
+        if user.is_blacklisted:
+            flash('Your account has been suspended. Contact admin.', 'error')
+            return redirect(url_for('home'))
         
         session['user_id'] = user.id
         session['username'] = user.username
@@ -182,6 +188,10 @@ def doctor_login():
             print("user not exist")
             flash("User does not exist or invalid credentials", "error")
             return redirect(url_for('doctor_login'))
+    
+        if user.is_blacklisted:
+            flash('Your account has been suspended. Contact admin.', 'error')
+            return redirect(url_for('home'))
         session['user_id'] = user.id
         session['username'] = user.username
         session['user_type'] = 'doctor'
@@ -347,16 +357,53 @@ def delete_patient(patient_id):
     flash(f' {patient.name} deleted.', 'success')
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/blacklist_patient/<int:patient_id>')
-def blacklist_patient(patient_id):
-    # Add logic: maybe set is_blacklisted = True
-    flash('Patient blacklisted.', 'warning')
-    return redirect(url_for('admin_dashboard'))
-
 @app.route('/blacklist_doctor/<int:doctor_id>')
 def blacklist_doctor(doctor_id):
-    # Add logic: maybe set is_blacklisted = True
-    flash('Doctor blacklisted.', 'warning')
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    
+    doctor = Doctor.query.get_or_404(doctor_id)
+    doctor.is_blacklisted = True
+    db.session.commit()
+    flash(f'Dr. {doctor.name} has been blacklisted.', 'warning')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/unblacklist_doctor/<int:doctor_id>')
+def unblacklist_doctor(doctor_id):
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    
+    doctor = Doctor.query.get_or_404(doctor_id)
+    doctor.is_blacklisted = False
+    db.session.commit()
+    flash(f'Dr. {doctor.name} has been removed from blacklist.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/blacklist_patient/<int:patient_id>')
+def blacklist_patient(patient_id):
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    
+    patient = Patient.query.get_or_404(patient_id)
+    patient.is_blacklisted = True
+    db.session.commit()
+    flash(f'{patient.name} has been blacklisted.', 'warning')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/unblacklist_patient/<int:patient_id>')
+def unblacklist_patient(patient_id):
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+    
+    patient = Patient.query.get_or_404(patient_id)
+    patient.is_blacklisted = False
+    db.session.commit()
+    flash(f'{patient.name} has been removed from blacklist.', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/view_appointment/<int:appt_id>')

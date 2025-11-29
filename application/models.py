@@ -16,6 +16,7 @@ class Doctor(db.Model):
     Dep_id = db.Column(db.Integer, db.ForeignKey("department.id"), nullable=False)
     gender = db.Column(db.Enum('Male', 'Female'), nullable=False)
     appointments = db.relationship('Appointment', backref='doctor')
+    is_blacklisted = db.Column(db.Boolean, default=False, nullable=False)
 
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +27,7 @@ class Patient(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.Enum('Male', 'Female'))
     appointments = db.relationship('Appointment', backref='patient')
+    is_blacklisted = db.Column(db.Boolean, default=False, nullable=False)
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
