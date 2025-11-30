@@ -2,7 +2,6 @@
 
 {% block title %}Update Patient History{% endblock %}
 
-<!-- Use your login/register style -->
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -29,8 +28,6 @@
         <div id="form-body">
 
             <h2>Update Patient History</h2>
-
-            <!-- Patient Info -->
             <div style="background:#f8fdff; padding:15px; border-radius:8px; border-left:5px solid rgb(34, 2, 65); margin-bottom:25px;">
                 <p style="margin:5px 0; font-size:1.1em;">
                     <strong>Patient Name:</strong> Mr. {{ patient.name }}
@@ -41,8 +38,6 @@
             </div>
 
             <form method="POST" action="{{ url_for('update_patient_history', appt_id=appointment.id) }}">
-
-                <!-- Visit Type & Tests Done -->
                 <div style="display:flex; gap:20px; margin-bottom:20px;">
                     <div style="flex:1;">
                         <label>Visit Type</label>
@@ -58,26 +53,19 @@
                                style="width:100%; padding:10px; border:1px solid #4859f0; border-radius:4px; margin-top:5px;">
                     </div>
                 </div>
-
-                <!-- Diagnosis -->
                 <div style="margin-bottom:20px;">
                     <label>Diagnosis <span style="color:red;">*</span></label>
                     <textarea name="diagnosis" rows="4" required placeholder="e.g., Abnormal Heartbeats, Hypertension, Diabetes Type 2..."
                               style="width:100%; padding:10px; border:1px solid #4859f0; border-radius:4px; margin-top:5px; resize:vertical; font-family:inherit;"></textarea>
                 </div>
-
-                <!-- Prescription -->
                 <div style="margin-bottom:20px;">
                     <label>Prescription / Advice <span style="color:red;">*</span></label>
                     <textarea name="prescription" rows="4" required placeholder="e.g., Take rest, avoid salty food, exercise 30 mins daily..."
                               style="width:100%; padding:10px; border:1px solid #4859f0; border-radius:4px; margin-top:5px; resize:vertical;"></textarea>
                 </div>
-
-                <!-- Medicines (Dynamic Add/Remove) -->
                 <div style="margin-bottom:25px;">
                     <label>Medicines</label>
                     <div id="medicine-container">
-                        <!-- Default one field -->
                         <div class="medicine-row" style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
                             <input type="text" name="medicine_name" placeholder="Medicine Name" required style="flex:2; padding:10px; border:1px solid #4859f0; border-radius:4px;">
                             <input type="text" name="medicine_dosage" placeholder="Dosage (e.g., 1-0-1)" required style="flex:1; padding:10px; border:1px solid #4859f0; border-radius:4px;">
@@ -90,13 +78,10 @@
                         Add Medicine
                     </button>
                 </div>
-
-                <!-- Save Button -->
                 <div>
                     <input type="submit" value="Save & Complete Appointment"
                            style="background:#28a745; color:white; font-weight:bold; font-size:1.2em; padding:12px;">
                 </div>
-
                 <div style="margin-top:15px; text-align:center;">
                     <a href="{{ url_for('doctor_dashboard') }}">Cancel & Go Back</a>
                 </div>

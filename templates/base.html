@@ -5,20 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hospital Management System{% endblock %}</title>
 
-    <!-- Your CSS (style1.css is the one you're using everywhere) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
 
-    <!-- Optional: Icon -->
-    <link rel="icon" href="{{ url_for('static', filename='nonne_icon.png') }}" type="image/png">
+    <link rel="Icon" href="{{ url_for('static', filename='nonne_icon.png') }}" type="image/png">
 
-    <!-- Page-specific CSS block -->
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
     <div class="dashboard-container">
 
-        <!-- ==================== NAVIGATION BAR ==================== -->
         <div class="nav-bar">
             <h2>
                 {% if session.user_type == 'admin' %}
@@ -34,7 +30,6 @@
 
             <div class="search-box">
                 {% block search_box %}
-                    <!-- You can override this block in specific pages if you don't want search -->
                     <input type="text" placeholder="Search patients, doctors, appointments...">
                     <button class="btn btn-search">Search</button>
                 {% endblock %}
@@ -54,7 +49,6 @@
             </div>
         </div>
 
-        <!-- ==================== FLASH MESSAGES ==================== -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div style="margin: 20px 0;">
@@ -73,14 +67,11 @@
             {% endif %}
         {% endwith %}
 
-        <!-- ==================== MAIN CONTENT ==================== -->
         <main>
             {% block content %}
-                <!-- All your pages (admin_dashboard.html, patient_dashboard.html, etc.) will go here -->
             {% endblock %}
         </main>
 
-        <!-- ==================== FOOTER ==================== -->
         <footer style="
             margin-top: 50px;
             padding-top: 20px;
@@ -89,12 +80,10 @@
             color: rgb(34, 2, 65);
             font-size: 0.9em;
         ">
-            © 2025 Hospital Management System | Developed with ♥ using Flask
+            © 2025 Hospital Management System | Developed with ♥
         </footer>
 
     </div>
 
-    <!-- Page-specific JavaScript block -->
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

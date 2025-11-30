@@ -2,7 +2,6 @@
 
 {% block title %}Edit Patient{% endblock %}
 
-<!-- Use the same login/register style as your other forms -->
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -24,8 +23,6 @@
             <h2>Edit Patient Profile</h2>
 
             <form method="POST" action="{% if session.get('user_type') == 'admin' %}{{ url_for('edit_patient', patient_id=patient.id) }}{% else %}{{ url_for('patient_profile', patient_id=patient.id) }}{% endif %}">
-
-                <!-- Full Name -->
                 <div>
                     <label for="name">Full Name</label>
                     <input type="text" 
@@ -35,8 +32,6 @@
                            required 
                            placeholder="Sarah Johnson">
                 </div>
-
-                <!-- Email -->
                 <div>
                     <label for="email">Email Address</label>
                     <input type="email" 
@@ -45,8 +40,6 @@
                            value="{{ patient.email }}" 
                            required>
                 </div>
-
-                <!-- Username -->
                 <div>
                     <label for="username">Username</label>
                     <input type="text" 
@@ -55,14 +48,10 @@
                            value="{{ patient.username }}" 
                            required>
                 </div>
-
-                <!--Age-->
                 <div>
                     <label for="age">Age</label>
                     <input type="number" name="age" id="age" value="{{ patient.age }}" >
                 </div>
-
-                <!-- Gender -->
                 <div style="margin-bottom: 20px;">
                     <label>Gender</label>
                     <div style="display:flex; gap:25px; margin-top:8px;">
@@ -78,9 +67,6 @@
                         </label>
                     </div>
                 </div>
-
-
-                <!-- Buttons -->
                 <div>
                     <input type="submit" value="Update Patient"
                            style="background-color: #28a745; margin-bottom: 10px;">

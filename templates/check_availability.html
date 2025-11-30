@@ -7,8 +7,6 @@
 {% block content %}
 
 <div class="dashboard-container">
-
-    <!-- Header -->
     <div class="nav-bar" style="margin-bottom: 30px; border-bottom: 2px solid rgb(34, 2, 65); padding-bottom: 15px;">
         <h2 style="margin: 0; color: rgb(34, 2, 65);">
             Book Appointment with Dr. {{ doctor.name }}
@@ -20,11 +18,8 @@
             Back
         </a>
     </div>
-
-    <!-- Doctor Info Card -->
     <div style="background:white; padding:20px; border-radius:12px; border:2px solid rgb(34,2,65); margin-bottom:30px; display:flex; align-items:center; gap:20px;">
         <div style="width:80px; height:80px; background:#ddd; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px;">
-            
         </div>
         <div>
             <h3 style="margin:0; color:rgb(34,2,65);">Dr. {{ doctor.name }}</h3>
@@ -33,11 +28,8 @@
             </p>
         </div>
     </div>
-
-    <!-- Availability Calendar -->
     <div class="section">
         <h3 style="color:rgb(34,2,65); margin-bottom:20px;">Available Slots (Next 7 Days)</h3>
-
         <div style="background:white; border-radius:12px; overflow:hidden; border:2px solid rgb(34,2,65);">
             <table style="width:100%; border-collapse:collapse;">
                 <thead>
@@ -55,8 +47,6 @@
                             {{ slot.date.strftime('%A') }}<br>
                             <span style="font-size:1.4em; color:rgb(34,2,65);">{{ slot.date.strftime('%d %B %Y') }}</span>
                         </td>
-
-                        <!-- Morning Slot -->
                         <td style="text-align:center; padding:15px;">
                             {% if slot.morning_available and not slot.morning_booked %}
                                 <form method="POST" action="{{ url_for('book_appointment', doctor_id=doctor.id, date=date_str, slot='morning') }}" style="display:inline;">
@@ -73,8 +63,6 @@
                                 <span style="color:#ccc;">Not Available</span>
                             {% endif %}
                         </td>
-
-                        <!-- Evening Slot -->
                         <td style="text-align:center; padding:15px;">
                             {% if slot.evening_available and not slot.evening_booked %}
                                 <form method="POST" action="{{ url_for('book_appointment', doctor_id=doctor.id, date=date_str, slot='evening') }}" style="display:inline;">
@@ -97,12 +85,9 @@
             </table>
         </div>
     </div>
-
-    <!-- Legend -->
     <div style="margin-top:30px; text-align:center; color:#666; font-size:0.95em;">
         Green = Morning Available  Red = Evening Available  Gray = Not Available / Booked
     </div>
-
 </div>
 
 {% endblock %}

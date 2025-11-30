@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, flash, session, url
 from flask import current_app as app
 from .models import *
 
-#blacklist_doctor
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -20,20 +19,17 @@ def history(patient_id):
         flash('Access denied.', 'error')
         return redirect(url_for('logout'))
 
-    # Check that patient can only view their own history
     if patient_id != session.get('user_id'):
         flash('Access denied.', 'error')
         return redirect(url_for('patient_dashboard'))
 
     current_patient = Patient.query.get_or_404(patient_id)
 
-    #get doctors with which patient has the appointment
     doctors = db.session.query(Doctor).join(Appointment).filter(
         Appointment.p_id == current_patient.id,
         Appointment.status == 'Completed'
     ).distinct().all()
 
-    # Get completed treatments for this patient
     treatments = Treatment.query.join(Appointment, Treatment.appoint_id == Appointment.id).filter(
         Appointment.p_id == current_patient.id,
         Appointment.status == 'Completed'
@@ -99,15 +95,11 @@ def check_availability(doctor_id):
 
     for i in range(7):
         day_date = today + timedelta(days=i)
-        
-        # Get doctor's availability
         avail = DoctorAvailability.query.filter_by(doctor_id=doctor.id, date=day_date).first()
-        
-        # Check if slots are already booked
         morning_booked = Appointment.query.filter_by(
             d_id=doctor.id,
             date=day_date,
-            time='10:00:00',  # You can store time as Time object
+            time='10:00:00',
             status='Booked'
         ).first() is not None
 
@@ -133,9 +125,6 @@ def doctor_details(doctor_id):
     doctor = Doctor.query.get_or_404(doctor_id)
     return render_template('doctor_details.html', doctor=doctor)
 
-@app.route("/base", methods=["GET", "POST"])
-def base():
-    return render_template('base.html')
 
 @app.route("/patient_register", methods=["GET", "POST"])
 def patient_register():
@@ -167,7 +156,7 @@ def patient_login():
             print("user not exist")
             flash("User does not exist or invalid credentials", "error")
             return redirect('patient_login')
-        # In doctor_login and patient_login
+
         if user.is_blacklisted:
             flash('Your account has been suspended. Contact admin.', 'error')
             return redirect(url_for('home'))
@@ -252,7 +241,6 @@ def admin_dashboard():
 
     query = request.args.get('q', '').strip()
 
-    # start with query objects
     doctors_q = Doctor.query
     patients_q = Patient.query
     appointments_q = Appointment.query.join(Patient).join(Doctor)
@@ -273,7 +261,7 @@ def admin_dashboard():
     for appt in appointments:
         appointments_with_details.append({
             'id': appt.id,
-            'patient': appt.patient,   # use backref provided objects
+            'patient': appt.patient,
             'doctor': appt.doctor,
             'date': appt.date,
             'time': appt.time,
@@ -343,18 +331,39 @@ def edit_patient(patient_id):
 
 @app.route('/delete_doctor/<int:doctor_id>')
 def delete_doctor(doctor_id):
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
     doctor = Doctor.query.get_or_404(doctor_id)
+    appointments = Appointment.query.filter_by(d_id=doctor_id).all()
+    for appointment in appointments:
+        treatments = Treatment.query.filter_by(appoint_id=appointment.id).all()
+        for treatment in treatments:
+            Medicine.query.filter_by(treatment_id=treatment.id).delete()
+            db.session.delete(treatment)
+        db.session.delete(appointment)
+    DoctorAvailability.query.filter_by(doctor_id=doctor_id).delete()
     db.session.delete(doctor)
     db.session.commit()
-    flash(f'Dr. {doctor.name} deleted.', 'success')
+    flash(f'Dr. {doctor.name} and all associated records deleted.', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/delete_patient/<int:patient_id>')
 def delete_patient(patient_id):
+    if session.get('user_type') != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
     patient = Patient.query.get_or_404(patient_id)
+    appointments = Appointment.query.filter_by(p_id=patient_id).all()
+    for appointment in appointments:
+        treatments = Treatment.query.filter_by(appoint_id=appointment.id).all()
+        for treatment in treatments:
+            Medicine.query.filter_by(treatment_id=treatment.id).delete()
+            db.session.delete(treatment)
+        db.session.delete(appointment)
     db.session.delete(patient)
     db.session.commit()
-    flash(f' {patient.name} deleted.', 'success')
+    flash(f'{patient.name} and all associated records deleted.', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/blacklist_doctor/<int:doctor_id>')
@@ -362,7 +371,6 @@ def blacklist_doctor(doctor_id):
     if session.get('user_type') != 'admin':
         flash('Access denied.', 'error')
         return redirect(url_for('home'))
-    
     doctor = Doctor.query.get_or_404(doctor_id)
     doctor.is_blacklisted = True
     db.session.commit()
@@ -410,7 +418,6 @@ def unblacklist_patient(patient_id):
 def view_appointment(appt_id):
     appointment = Appointment.query.get_or_404(appt_id)
 
-    # Query treatments for the same patient-doctor pair, only for completed appointments
     treatments = Treatment.query.join(Appointment, Treatment.appoint_id == Appointment.id).filter(
         Appointment.p_id == appointment.p_id,
         Appointment.d_id == appointment.d_id,
@@ -433,7 +440,6 @@ def view_patient_history(patient_id):
     current_doctor = Doctor.query.get(session['user_id'])
     patient = Patient.query.get_or_404(patient_id)
 
-    # treatments from completed appointments for this doctor-patient pair
     treatments = Treatment.query.join(Appointment, Treatment.appoint_id == Appointment.id).filter(
         Appointment.p_id == patient.id,
         Appointment.d_id == current_doctor.id,
@@ -451,7 +457,6 @@ def doctor_dashboard():
 
     current_doctor = Doctor.query.get(session['user_id'])
 
-    # Upcoming appointments (today or future, status = Booked)
     from datetime import date, datetime
     today = date.today()
 
@@ -461,7 +466,6 @@ def doctor_dashboard():
         Appointment.status == 'Booked'
     ).order_by(Appointment.date, Appointment.time).all()
 
-    # All patients this doctor has ever seen (from completed appointments)
     all_patients = db.session.query(Patient).join(Appointment).filter(
         Appointment.d_id == current_doctor.id,
         Appointment.status == 'Completed'
@@ -510,7 +514,6 @@ def update_patient_history(appt_id):
         return redirect(url_for('doctor_dashboard'))
 
     if request.method == 'POST':
-        # Create Treatment
         treatment = Treatment(
             appoint_id=appointment.id,
             diagnosis=request.form['diagnosis'],
@@ -519,7 +522,6 @@ def update_patient_history(appt_id):
         )
         db.session.add(treatment)
 
-        # Add Medicines
         names = request.form.getlist('medicine_name')
         dosages = request.form.getlist('medicine_dosage')
         for name, dosage in zip(names, dosages):
@@ -531,7 +533,6 @@ def update_patient_history(appt_id):
                 )
                 db.session.add(med)
 
-        # Mark appointment as completed
         appointment.status = 'Completed'
         db.session.commit()
 
@@ -558,7 +559,6 @@ def doctor_availability():
     today = date.today()
     next_7_days = []
 
-    # Prepare next 7 days with current availability
     for i in range(7):
         current_date = today + timedelta(days=i)
         avail = DoctorAvailability.query.filter_by(
@@ -573,14 +573,13 @@ def doctor_availability():
         })
 
     if request.method == 'POST':
-        # Delete old availability for next 7 days
+        
         DoctorAvailability.query.filter(
             DoctorAvailability.doctor_id == doctor.id,
             DoctorAvailability.date >= today,
             DoctorAvailability.date < today + timedelta(days=7)
         ).delete()
 
-        # Save new availability
         for i in range(7):
             day_date = today + timedelta(days=i)
             morning_key = f"available_{day_date.strftime('%Y%m%d')}_morning"
@@ -614,10 +613,8 @@ def book_appointment(doctor_id, date, slot):
     patient = Patient.query.get(session['user_id'])
     doctor = Doctor.query.get_or_404(doctor_id)
 
-    # Parse date string
     appt_date = datetime.strptime(date, '%Y-%m-%d').date()
 
-    # Set time based on slot
     if slot == 'morning':
         appt_time = time(10, 0, 0)
     elif slot == 'evening':
@@ -626,7 +623,6 @@ def book_appointment(doctor_id, date, slot):
         flash('Invalid slot.', 'error')
         return redirect(url_for('check_availability', doctor_id=doctor_id))
 
-    # Create appointment
     appointment = Appointment(
         p_id=patient.id,
         d_id=doctor.id,

@@ -2,7 +2,6 @@
 
 {% block title %}Add New Doctor{% endblock %}
 
-<!-- Load the special login/register stylesheet -->
 {% block extra_css %}
     <link rel="stylesheet" href="/static/style.css">
     <style>
@@ -27,32 +26,22 @@
             <h2>Add a New Doctor</h2>
 
             <form method="POST" action="{{ url_for('doctor_register') }}">
-
-                <!-- Full Name -->
                 <div>
                     <label for="name">Full Name</label>
                     <input type="text" name="name" id="name" required placeholder="Dr. Sarah Johnson">
                 </div>
-
-                <!-- Email -->
                 <div>
                     <label for="email">Email Address</label>
                     <input type="email" name="email" id="email" required placeholder="sarah@example.com">
                 </div>
-
-                <!-- Username -->
                 <div>
                     <label for="username">Username</label>
                     <input type="text" name="username" id="username" required placeholder="sarah_doc">
                 </div>
-
-                <!-- Password -->
                 <div>
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" required minlength="6" placeholder="••••••••">
                 </div>
-
-                <!-- Department -->
                 <div>
                     <label for="Dep_id">Department</label>
                     <select name="Dep_id" id="Dep_id" required style="width:100%; padding:8px; border:1px solid #4859f0; border-radius:4px;">
@@ -62,8 +51,6 @@
                         {% endfor %}
                     </select>
                 </div>
-
-                <!-- Gender -->
                 <div style="margin-bottom: 15px;">
                     <label>Gender</label>
                     <div style="display:flex; gap:20px; margin-top:8px;">
@@ -71,13 +58,9 @@
                         <label><input type="radio" name="gender" value="Female"> Female</label>
                     </div>
                 </div>
-
-                <!-- Submit Button -->
                 <div>
                     <input type="submit" value="Create Doctor Account">
                 </div>
-
-                <!-- Back Link -->
                 <div>
                     <a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a>
                 </div>

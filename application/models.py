@@ -60,7 +60,6 @@ class Department(db.Model):
     description = db.Column(db.String(), nullable=False)
     doctors_registered = db.relationship('Doctor', backref='department')
 
-# Add this new model — perfect fit with your current code
 class DoctorAvailability(db.Model):
     __tablename__ = 'doctor_availability'
     
@@ -72,6 +71,4 @@ class DoctorAvailability(db.Model):
 
     # One doctor can't have duplicate dates
     __table_args__ = (db.UniqueConstraint('doctor_id', 'date', name='unique_doctor_date'),)
-
-    # Relationship
     doctor = db.relationship('Doctor', backref='availability')

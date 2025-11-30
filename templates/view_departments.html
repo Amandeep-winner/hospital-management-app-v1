@@ -7,26 +7,19 @@
 {% block content %}
 
 <div class="dashboard-container">
-
-    <!-- Department Header -->
     <div class="nav-bar" style="margin-bottom: 30px; border-bottom: 2px solid rgb(34, 2, 65); padding-bottom: 15px;">
         <h2 style="color: rgb(34, 2, 65); margin: 0;">
             Department of {{ department.dep_name }}
         </h2>
     </div>
-
-    <!-- Overview Section -->
     <div class="section" style="background: white; padding: 25px; border-radius: 12px; border: 2px solid rgb(34, 2, 65); margin-bottom: 35px;">
         <h3 style="color: rgb(34, 2, 65); margin-top: 0;">Overview</h3>
         <p style="font-size: 1.1em; line-height: 1.7; color: #444;">
             {{ department.description }}
         </p>
     </div>
-
-    <!-- Doctors' List -->
     <div class="section">
         <h3 style="color: rgb(34, 2, 65); margin-bottom: 20px;">Doctors' List</h3>
-
         <div class="list-container">
             {% if doctors|length == 0 %}
                 <p style="text-align:center; color:#777; padding:30px; background:#f9f9f9; border-radius:8px;">
@@ -54,7 +47,6 @@
                            onmouseout="this.style.background='white'">
                             Check Availability
                         </a>
-
                         <a href="{{ url_for('doctor_details', doctor_id=doctor.id) }}"
                            class="btn"
                            style="
@@ -75,8 +67,6 @@
             {% endif %}
         </div>
     </div>
-
-    <!-- Back to Departments -->
     <div style="margin-top: 40px; text-align: center;">
         <a href="{{ url_for('patient_dashboard') }}"
            onclick="history.back(); return false;"
@@ -94,7 +84,6 @@
             Back to Departments
         </a>
     </div>
-
 </div>
 
 {% endblock %}

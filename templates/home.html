@@ -20,7 +20,6 @@
         Welcome! Please select your role to continue.
     </p>
     <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-        <!-- Admin Login -->
         <a href="{{ url_for('admin_login') }}"
            style="
                background-color: rgb(11, 2, 65);
@@ -39,7 +38,6 @@
            onmouseout="this.style.backgroundColor='rgb(11, 2, 65)'; this.style.transform='translateY(0)'">
            Admin Login
         </a>
-        <!-- Doctor Login -->
         <a href="{{ url_for('doctor_login') }}"
            style="
                background-color: #4859f0;
@@ -58,8 +56,6 @@
            onmouseout="this.style.backgroundColor='#4859f0'; this.style.transform='translateY(0)'">
            Doctor Login
         </a>
-
-        <!-- Patient Login & Register (side by side on larger screens) -->
         <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
             <a href="{{ url_for('patient_login') }}"
                style="
